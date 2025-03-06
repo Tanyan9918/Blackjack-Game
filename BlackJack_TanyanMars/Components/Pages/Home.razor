@@ -1,0 +1,218 @@
+﻿@using BlackJack_TanyanMars.Models;
+@using BlackJack_TanyanMars.Services;
+@page "/"
+@inject IFileService DatabaseService
+
+<div class="@BackgroundClass">
+    @if (gamestate == Gamestate.Rules)
+    {
+        <h4>Rules</h4>
+        <ul>
+            <li>The goal is to get as close to 21 without going over.</li>
+            <li>Each player is dealt two cards, the dealer has one face down card and one face up.</li>
+            <li>The cards have the rank that is on the cards besides face up cards which are ten.</li>
+            <li>The first ace you draw is worth eleven while the second is one.</li>
+            <li>The dealer doesn't go until you end your turn by hitting stand.</li>
+            <li>To draw another card press the hit button, if you bust(go over 21) you automatically lose</li>
+        </ul>
+        <button @onclick="StartGame">Start Game</button>
+    }
+    else if (gamestate == Gamestate.Play)
+    {
+        <h4>@Player.name's Hand</h4>
+        <ul>
+            @foreach (var card in Player.hand.hand)
+            {
+                @if (card.IsFaceUp)
+                {
+                    <img src="@cardImageUrls[$"{card.Rank}-{card.Suit}"]" alt="@card.ToString()" class="card-image" width="100px" height="150px" />
+                }
+                else
+                {
+                    <img src="@card.ImageUrl" alt="Face-down Card" class="card-image" width="100px" height="150px" />
+                }
+            }
+        </ul>
+        <p>Total Value: @Player.handValue</p>
+
+        <h4>@Dealer.name's Hand</h4>
+        <ul>
+            @foreach (var card in Dealer.hand.hand)
+            {
+                @if (card.IsFaceUp)
+                {
+                    <img src="@cardImageUrls[$"{card.Rank}-{card.Suit}"]" alt="@card.ToString()" class="card-image" width="100px" height="150px" />
+                }
+                else
+                {
+                    <img src="@card.ImageUrl" alt="Face-down Card" class="card-image" width="100px" height="150px" />
+                }
+            }
+        </ul>
+        <p>Total Value: @(Dealer.handValue > 0 ? Dealer.handValue.ToString() : "Hidden")</p>
+
+        <button @onclick="Hit">Hit</button>
+        <button @onclick="Stand">Stand</button>
+    }
+    else if (gamestate == Gamestate.End)
+    {
+        <h4>Game Over</h4>
+        <p>@GameMessage</p>
+        <button @onclick="Restart">Restart</button>
+    }
+</div>
+
+@code {
+    private string BackgroundClass;
+    /// <summary>
+    /// Has an enum that will switch to determine what screen to show
+    /// </summary>
+    private enum Gamestate
+    {
+        Rules,
+        Play,
+        End
+    }
+    /// <summary>
+    /// Sets to Gamestate.Rules from the start so they see the rules first
+    /// </summary>
+    private Gamestate gamestate = Gamestate.Rules;
+
+    /// <summary>
+    /// Creates the deck
+    /// </summary>
+    private Deck deck;
+
+    /// <summary>
+    /// Creates the player
+    /// </summary>
+    private ICharacter Player;
+
+    /// <summary>
+    /// Creates the dealer
+    /// </summary>
+    private ICharacter Dealer;
+
+    /// <summary>
+    /// Sets the game message to tell the player what is happening
+    /// </summary>
+    private string GameMessage = "Game started!";
+
+    /// <summary>
+    /// Creates a dictionary from the database to store the imageUrls
+    /// </summary>
+    private Dictionary<string, string> cardImageUrls = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Creates everything and starts Loading the card images
+    /// </summary>
+    /// <returns>The gamestate changing</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        deck = new Deck();
+        deck.ShuffleDeck();
+        Player = new Player("Player");
+        Dealer = new Dealer();
+
+        await LoadCardImagesAsync();
+        gamestate = Gamestate.Rules;
+    }
+
+    /// <summary>
+    /// Loads all of the card urls from the database
+    /// </summary>
+    /// <returns>The loaded card images</returns>
+    private async Task LoadCardImagesAsync()
+    {
+        foreach (var card in deck.deck)
+        {
+            var url = await GetCardImageUrl(card.Rank.ToString(), card.Suit.ToString());
+            var cardKey = $"{card.Rank}-{card.Suit}";
+            cardImageUrls[cardKey] = url;
+        }
+    }
+
+    /// <summary>
+    /// Gets the specific url from the database
+    /// </summary>
+    /// <param name="rank">The rank of the card</param>
+    /// <param name="suit">The suit of the card</param>
+    /// <returns>The image url</returns>
+    private async Task<string> GetCardImageUrl(string rank, string suit)
+    {
+        var imageUrl = await DatabaseService.GetCardImageUrlAsync(rank, suit);
+        return imageUrl ?? "https://images.squarespace-cdn.com/content/v1/56ba85d9cf80a17a6f304b72/17021f49-d2e2-449f-a7c4-5d0ce8e08b7b/Card-Back.jpg?format=500w";
+    }
+
+    /// <summary>
+    /// Starts the game by dealing cards and setting the gamestate to play
+    /// </summary>
+    private void StartGame()
+    {
+        Player.addCard(deck.DealCard());
+        Player.addCard(deck.DealCard());
+
+        Dealer.addCard(deck.DealCard());
+        Dealer.addCard(deck.DealCard());
+        Dealer.hand.hand.Peek().IsFaceUp = false;
+        gamestate = Gamestate.Play;
+    }
+
+    /// <summary>
+    /// Has the player hit and if they bust they automatically lose
+    /// </summary>
+    private void Hit()
+    {
+        Player.addCard(deck.DealCard());
+        if (Player.isBusted)
+        {
+            GameMessage = "You busted! Dealer wins.";
+            gamestate = Gamestate.End;
+        }
+    }
+
+    /// <summary>
+    ///Has the player stand, but also determines the winner based on value. Also has a wait in it so that the face down card has time to display
+    /// </summary>
+    private async Task Stand()
+    {
+        Dealer.hand.hand.Peek().IsFaceUp = true;
+        gamestate = Gamestate.Play; 
+        StateHasChanged(); 
+
+
+
+        Dealer.RevealAllCards();
+        ((Dealer)Dealer).TakeTurn(deck);
+        await Task.Delay(1000);
+
+        if (Dealer.isBusted || Player.handValue > Dealer.handValue)
+        {
+            GameMessage = "You win!";
+        }
+        else if (Player.handValue < Dealer.handValue)
+        {
+            GameMessage = "Dealer wins.";
+        }
+        else
+        {
+            GameMessage = "It's a tie!";
+        }
+
+        gamestate = Gamestate.End;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Restarts the game
+    /// </summary>
+    private void Restart()
+    {
+        deck.ShuffleDeck();
+        Player = new Player("Player");
+        Dealer = new Dealer();
+        GameMessage = string.Empty;
+        gamestate = Gamestate.Rules;
+        
+    }
+}

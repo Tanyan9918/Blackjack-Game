@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BlackJack_TanyanMars.bundle.scp.css",
+      "PackagePath": "staticwebassets\\BlackJack_TanyanMars.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\Data\\CardImagesURL.db",
+      "PackagePath": "staticwebassets\\Data\\CardImagesURL.db"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\Data\\CardImagesURL.sqbpro",
+      "PackagePath": "staticwebassets\\Data\\CardImagesURL.sqbpro"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\super\\source\\repos\\BlackJack_TanyanMars\\BlackJack_TanyanMars\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BlackJack_TanyanMars.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.BlackJack_TanyanMars.props",
+      "PackagePath": "build\\BlackJack_TanyanMars.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.BlackJack_TanyanMars.props",
+      "PackagePath": "buildMultiTargeting\\BlackJack_TanyanMars.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.BlackJack_TanyanMars.props",
+      "PackagePath": "buildTransitive\\BlackJack_TanyanMars.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
